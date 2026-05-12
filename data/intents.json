@@ -1,0 +1,68 @@
+{
+  "intents": [
+    {
+      "tag": "greeting",
+      "patterns": ["hi", "hello", "hey", "good morning", "good evening", "greetings", "howdy", "what's up", "hi there"],
+      "responses": ["Hello! Welcome to Green Bites 🌿. How can I help you today?", "Hi there! What can I do for you?", "Greetings! Welcome to our vegetarian paradise. How may I assist you?"]
+    },
+    {
+      "tag": "goodbye",
+      "patterns": ["bye", "see you", "take care", "goodbye", "catch you later", "bye bye", "have a good one", "leaving now"],
+      "responses": ["Goodbye! Have a great day!", "See you soon! Thanks for visiting.", "Take care! We hope to see you again."]
+    },
+    {
+      "tag": "thanks",
+      "patterns": ["thanks", "thank you", "great help", "appreciate it", "thanks a lot", "thank you so much", "that's helpful", "thanks for the info"],
+      "responses": ["You're welcome!", "Happy to help!", "Anytime!", "My pleasure!"]
+    },
+    {
+      "tag": "view_menu",
+      "patterns": ["show me the menu", "what do you serve", "food options", "can I see the menu", "what's on the menu", "do you have a menu", "list of food", "what can I eat"],
+      "responses": [],
+      "requires_db": true
+    },
+    {
+      "tag": "item_info",
+      "patterns": ["tell me about paneer tikka", "what is in dal makhani", "ingredients", "how is the biryani made", "what's the palak paneer like", "can you describe the samosa chaat", "is the mango lassi vegan", "what are the ingredients of spring rolls"],
+      "responses": [],
+      "requires_db": true
+    },
+    {
+      "tag": "place_order",
+      "patterns": ["I want to order", "can I get", "add to my order", "I'd like to place an order", "let me order some food", "can you deliver", "takeaway order", "I will take the paneer tikka"],
+      "responses": [],
+      "requires_db": true
+    },
+    {
+      "tag": "reservation",
+      "patterns": ["book a table", "reserve a seat", "table for 2", "I want to make a reservation", "can I book a table for tonight", "reservation for tomorrow", "need a table for 4", "book a spot"],
+      "responses": [],
+      "requires_db": true
+    },
+    {
+      "tag": "opening_hours",
+      "patterns": ["when do you open", "are you open on Sunday", "timings", "what are your hours", "closing time", "how late are you open", "are you open right now", "what time do you close"],
+      "responses": ["We are open from 11:00 AM to 10:00 PM, Monday through Sunday.", "Our timings are 11 AM to 10 PM every day of the week."]
+    },
+    {
+      "tag": "location",
+      "patterns": ["where are you located", "address", "how to reach", "where is the restaurant", "location", "can you give me directions", "how do I get there", "where are you"],
+      "responses": ["We are located at 123 Veggie Lane, Green City.", "You can find us at 123 Veggie Lane, in the heart of Green City."]
+    },
+    {
+      "tag": "payment_methods",
+      "patterns": ["do you accept UPI", "can I pay by card", "cash only", "what payment methods do you take", "how can I pay", "do you take credit cards", "is Google Pay accepted", "payment options"],
+      "responses": ["We accept Cash, Credit/Debit Cards, UPI, and major digital wallets.", "You can pay via UPI, Card, or Cash."]
+    },
+    {
+      "tag": "specials",
+      "patterns": ["today's special", "chef's recommendation", "what's new", "any specials today", "what do you recommend", "what is good here", "best dishes", "special of the day"],
+      "responses": ["Today's chef recommendation is our signature Vegetable Biryani and creamy Dal Makhani!", "We highly recommend trying our Paneer Tikka and Mango Lassi today!"]
+    },
+    {
+      "tag": "unknown",
+      "patterns": [],
+      "responses": ["I'm sorry, I didn't quite understand that. Could you please rephrase?", "I'm still learning! Could you ask that in a different way?", "I'm not sure about that. Try asking about our menu, hours, or making a reservation."]
+    }
+  ]
+}
