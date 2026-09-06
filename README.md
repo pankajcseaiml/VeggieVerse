@@ -87,7 +87,14 @@ This will:
 
 ### 3. Configure Environment Variables
 
-Open the `.env` file and fill in your values:
+**Option A (Automated from KeePassXC):**
+If your secrets are in KeePassXC, generate `.env` in one command:
+```bat
+scripts\generate_env.bat
+```
+
+**Option B (Manual):**
+Open the `.env` file (copied from `.env.example`) and fill in your values:
 
 ```bash
 # .env  (NEVER commit this file)
@@ -96,14 +103,16 @@ MYSQL_HOST=localhost
 MYSQL_USER=root
 MYSQL_PASSWORD=<your-mysql-password>
 MYSQL_DATABASE=veg_restaurant_db
+BACKUP_ENCRYPTION_KEY=<generate-below>
 ```
 
-Generate a strong Flask secret key:
+Generate strong keys:
 ```bash
 python -c "import secrets; print(secrets.token_hex(32))"
 ```
 
-> **Security:** Store these values in a password manager (Bitwarden, KeePass, 1Password). The `.env` file is git-ignored and must never be committed.
+> **Security:** Store these values in KeePassXC or your preferred password manager. The `.env` file is git-ignored and must never be committed.
+
 
 ### 4. Set Up the Database
 
@@ -262,16 +271,23 @@ veg_restaurant_chatbot/
 ├── templates/
 │   └── index.html
 ├── scripts/
-│   ├── setup.bat / setup.sh
-│   ├── start.bat / start.sh
-│   ├── backup_db.bat / backup_db.sh
-│   ├── restore_db.bat / restore_db.sh
-│   ├── train_model.bat / train_model.sh
-│   └── verify.bat
+│   ├── setup.bat / setup.sh              # Environment setup & dependency installation
+│   ├── start.bat / start.sh              # Application launcher
+│   ├── init_keepass.bat                  # KeePassXC database initialization
+│   ├── generate_env.bat                  # Auto-generate .env from KeePassXC
+│   ├── backup_to_drive.bat / .py         # AES-256-GCM dump & Google Drive upload
+│   ├── restore_from_drive.bat / .py      # Google Drive download & database restore
+│   ├── verify_backup.bat / .py           # Cryptographic backup verification & audit
+│   ├── encrypt_backup.py                 # AES-256-GCM file encryption utility
+│   ├── decrypt_backup.py                 # AES-256-GCM file decryption utility
+│   ├── train_model.bat / train_model.sh  # NLP model training
+│   └── verify.bat                        # Diagnostic environment verification
 └── docs/
-    ├── DISASTER_RECOVERY.md
-    ├── SECURITY.md
-    └── ARCHITECTURE.md
+    ├── DISASTER_RECOVERY.md              # Full disaster recovery procedures
+    ├── SECURITY.md                       # Secret separation & encryption specs
+    ├── KEEPASSXC_SETUP.md                # KeePassXC secret vault setup guide
+    └── GOOGLE_DRIVE_BACKUP.md            # Google Drive rclone sync guide
+
 ```
 
 ---

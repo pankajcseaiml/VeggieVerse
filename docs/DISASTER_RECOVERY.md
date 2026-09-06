@@ -68,37 +68,50 @@ This creates the virtual environment and installs all dependencies.
 
 ### Step 4 — Configure Secrets
 
-Open the `.env` file (created by setup script):
+**Option A: Automated from KeePassXC (Recommended)**
+```bash
+# Windows
+scripts\generate_env.bat
 
+# Linux/macOS
+python scripts/keepass_manager.py generate-env
 ```
-FLASK_SECRET_KEY=<retrieve from password manager>
-MYSQL_HOST=localhost
-MYSQL_USER=root
-MYSQL_PASSWORD=<retrieve from password manager>
-MYSQL_DATABASE=veg_restaurant_db
-MYSQL_PORT=3306
-FLASK_DEBUG=1
-FLASK_PORT=5000
-```
+Enter your KeePassXC master password when prompted. The local `.env` file will be generated automatically with all required secrets without exposing them.
 
-Fill in `FLASK_SECRET_KEY` and `MYSQL_PASSWORD` from your password manager.
+**Option B: Manual configuration from Password Manager**
+Copy `.env.example` to `.env`:
+```bash
+copy .env.example .env     # Windows
+cp .env.example .env       # Linux/macOS
+```
+Open `.env` and fill in values from your password manager:
+- `FLASK_SECRET_KEY`
+- `MYSQL_PASSWORD`
+- `BACKUP_ENCRYPTION_KEY`
+- `MYSQL_HOST=localhost`
+- `MYSQL_USER=root`
+- `MYSQL_DATABASE=veg_restaurant_db`
 
 ---
 
 ### Step 5 — Restore the Database
 
-**Option A: Restore from backup (recommended — preserves all data)**
-
+**Option A: Automated Restore from Google Drive (Recommended)**
 ```bash
 # Windows
-scripts\restore_db.bat path\to\veg_restaurant_db_backup.sql
+scripts\restore_from_drive.bat
 
 # Linux/macOS
-bash scripts/restore_db.sh path/to/veg_restaurant_db_backup.sql
+python scripts/restore_from_drive.py
+```
+This automatically downloads the latest backup from Google Drive, decrypts using `BACKUP_ENCRYPTION_KEY`, verifies SHA-256 integrity, and restores all tables and records into MySQL.
+
+**Option B: Restore from Local Encrypted Backup**
+```bash
+python scripts/restore_from_drive.py --file path/to/backup.sql.enc
 ```
 
-**Option B: Fresh setup from schema (loses transactional data, but seeds menu)**
-
+**Option C: Fresh setup from schema (seeds structure and menu)**
 ```bash
 # Windows
 mysql -u root -p < database\schema.sql
@@ -111,8 +124,8 @@ Verify the database:
 ```sql
 mysql -u root -p -e "USE veg_restaurant_db; SHOW TABLES; SELECT COUNT(*) FROM menu_items;"
 ```
-
 Expected: 5 tables, 10 menu items.
+
 
 ---
 
@@ -186,12 +199,14 @@ Store the backup file in your secure cloud storage (outside this repository).
 | Asset | Storage Location | How to Recover |
 |---|---|---|
 | All source code | GitHub: `github.com/pankajcseaiml/VeggieVerse` | `git clone` |
-| `FLASK_SECRET_KEY` | Password manager | Copy to `.env` |
-| `MYSQL_PASSWORD` | Password manager | Copy to `.env` |
-| Database backup `.sql` | Secure cloud storage / encrypted drive | Run `scripts\restore_db.bat` |
+| Application Secrets | KeePassXC (`VeggieVerse_Secrets.kdbx`) | `scripts\generate_env.bat` |
+| `BACKUP_ENCRYPTION_KEY` | KeePassXC | Required to decrypt DB backups |
+| Database backups | Google Drive (`VeggieVerse-Backups/database/`) | `scripts\restore_from_drive.bat` |
+| Backup SHA-256 Checksums | Google Drive (`VeggieVerse-Backups/checksums/`) | `scripts\verify_backup.bat` |
 | ML model files | GitHub (committed — small size) | Already in repo |
 | Python dependencies | `requirements.txt` in repo | `pip install -r requirements.txt` |
 | DB schema + seed data | `database/schema.sql` in repo | `mysql < database/schema.sql` |
+
 
 ---
 

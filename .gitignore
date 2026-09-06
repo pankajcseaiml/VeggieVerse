@@ -11,10 +11,15 @@
 *.p12
 *.pfx
 *.crt
+*.kdbx
+*.enc
+*.meta.json
+rclone.conf
 credentials.*
 secrets.*
 *_secret*
 *secret_key*
+
 
 # ── PYTHON ──────────────────────────────────────────────────
 __pycache__/

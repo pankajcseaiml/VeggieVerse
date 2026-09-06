@@ -14,25 +14,50 @@ This project uses a strict separation between code and secrets.
 ### Secret Storage Architecture
 
 ```
-Password Manager (Bitwarden / KeePass / 1Password)
-    │
-    │  (manual copy by developer)
-    ▼
-.env  (local machine only — git-ignored)
-    │
-    │  (loaded at startup by python-dotenv)
-    ▼
-Application (Flask / db.py)
+┌──────────────────────────────────────┐
+│  KeePassXC Password Database (.kdbx) │
+│  Stored in ~/Documents/ (AES-256)    │
+└──────────────────┬───────────────────┘
+                   │
+                   │  scripts\generate_env.bat (keepassxc-cli)
+                   ▼
+       ┌───────────────────────┐
+       │ .env (local only)     │
+       │ Strictly Git-Ignored  │
+       └───────────┬───────────┘
+                   │
+                   │  python-dotenv on boot
+                   ▼
+       ┌───────────────────────┐
+       │ Application / db.py   │
+       └───────────────────────┘
 ```
 
 ### Secrets Managed by This Project
 
-| Variable | Purpose | Rotation Recommended |
-|---|---|---|
-| `FLASK_SECRET_KEY` | Flask session signing key | On any suspected compromise |
-| `MYSQL_PASSWORD` | MySQL database access | On any suspected compromise |
+| Variable | Purpose | Classification | Storage Location | Rotation Recommended |
+|---|---|---|---|---|
+| `FLASK_SECRET_KEY` | Flask session cookie signing key | Critical Secret | KeePassXC + local `.env` | On suspected leak |
+| `MYSQL_PASSWORD` | MySQL root database password | Critical Secret | KeePassXC + local `.env` | Regularly / immediately |
+| `BACKUP_ENCRYPTION_KEY` | 256-bit key for AES-GCM backup encryption | Critical Secret | KeePassXC + local `.env` | On backup compromise |
+| `MYSQL_HOST` | MySQL hostname (`localhost`) | Config | KeePassXC + local `.env` | On migration |
+| `MYSQL_USER` | MySQL username (`root`) | Config | KeePassXC + local `.env` | On user change |
+| `MYSQL_DATABASE` | MySQL database name (`veg_restaurant_db`) | Config | KeePassXC + local `.env` | On DB change |
 
-**Values are never printed, logged, or exposed anywhere in this documentation.**
+**Principle of Zero Exposure:** Secret values are NEVER printed, logged, committed to Git, or transmitted unencrypted.
+
+---
+
+## Encrypted Offsite Backup Architecture
+
+Database backups are protected using authenticated symmetric encryption before leaving the local environment:
+
+1. **Algorithm:** AES-256 in Galois/Counter Mode (AES-256-GCM) with 96-bit random nonce per backup.
+2. **Integrity:** GCM authentication tag guarantees tamper detection; any modification to the ciphertext is rejected before decryption.
+3. **Compression:** High-ratio gzip (level 9) prior to encryption.
+4. **Integrity Ledger:** SHA-256 cryptographic hashes calculated for every `.enc` artifact and mirrored in companion `.meta.json` records.
+5. **Key Separation:** The `BACKUP_ENCRYPTION_KEY` is maintained exclusively within KeePassXC and NEVER stored in the Google Drive backup repository.
+
 
 ---
 
