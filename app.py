@@ -1,13 +1,30 @@
+import os
+import sys
 from flask import Flask, render_template, request, jsonify, session
 import json
 import uuid
 import re
 from datetime import datetime
+from dotenv import load_dotenv
 import chatbot
 import db
 
+# Load environment variables from .env file (if present)
+load_dotenv()
+
 app = Flask(__name__)
-app.secret_key = 'LOAD_FROM_ENVIRONMENT_VARIABLE'
+
+# FLASK_SECRET_KEY must be set in your .env file (or environment).
+# Never hard-code this value.
+_flask_secret = os.environ.get("FLASK_SECRET_KEY")
+if not _flask_secret:
+    print("\n[ERROR] FLASK_SECRET_KEY environment variable is not set.")
+    print("Copy .env.example to .env and set a strong random secret key.")
+    print("Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\"")
+    print("See docs/DISASTER_RECOVERY.md for full setup instructions.\n")
+    sys.exit(1)
+
+app.secret_key = _flask_secret
 
 # Load intents
 intents_path = 'data/intents.json'

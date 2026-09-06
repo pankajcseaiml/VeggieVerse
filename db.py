@@ -1,18 +1,54 @@
+import os
+import sys
 import mysql.connector
 from mysql.connector import Error
+from dotenv import load_dotenv
+
+# Load environment variables from .env file (if present)
+load_dotenv()
+
+# ── Connection configuration ───────────────────────────────────────────────────
+# All credentials MUST be supplied via environment variables.
+# Copy .env.example → .env and fill in your values.
+# Never hard-code credentials here.
+
+_REQUIRED_ENV_VARS = {
+    "MYSQL_HOST":     "MySQL host (e.g. localhost)",
+    "MYSQL_USER":     "MySQL username (e.g. root)",
+    "MYSQL_PASSWORD": "MySQL password",
+    "MYSQL_DATABASE": "MySQL database name (e.g. veg_restaurant_db)",
+}
+
+
+def _validate_env():
+    """Raise a clear error if any required DB environment variable is missing."""
+    missing = [var for var in _REQUIRED_ENV_VARS if not os.environ.get(var)]
+    if missing:
+        print("\n[ERROR] Missing required environment variables for database connection:")
+        for var in missing:
+            print(f"  {var}  — {_REQUIRED_ENV_VARS[var]}")
+        print("\nCopy .env.example to .env and fill in the values.")
+        print("See docs/DISASTER_RECOVERY.md for full setup instructions.\n")
+        sys.exit(1)
+
+
+# Validate on module import so the application fails fast and clearly.
+_validate_env()
+
 
 def get_connection():
+    """Return a live MySQL connection or None on error."""
     try:
         connection = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            password=os.environ.get('MYSQL_PASSWORD', ''), # Update this with your actual root password if needed
-            database='veg_restaurant_db'
+            host=os.environ["MYSQL_HOST"],
+            user=os.environ["MYSQL_USER"],
+            password=os.environ["MYSQL_PASSWORD"],
+            database=os.environ["MYSQL_DATABASE"],
         )
         if connection.is_connected():
             return connection
     except Error as e:
-        print(f"Error connecting to MySQL: {e}")
+        print(f"[ERROR] MySQL connection failed: {e}")
     return None
 
 def get_full_menu():

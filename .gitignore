@@ -1,0 +1,112 @@
+# ============================================================
+# VeggieVerse / Green Bites — .gitignore
+# ============================================================
+
+# ── SECRETS — NEVER COMMIT ──────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+credentials.*
+secrets.*
+*_secret*
+*secret_key*
+
+# ── PYTHON ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib64/
+*.so
+
+# ── VIRTUAL ENVIRONMENTS ────────────────────────────────────
+venv/
+.venv/
+ENV/
+env/
+venv.bak/
+.virtualenv/
+
+# ── TESTING ─────────────────────────────────────────────────
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+nosetests.xml
+test-results/
+
+# ── LOGS ────────────────────────────────────────────────────
+logs/
+*.log
+*.log.*
+pip-log.txt
+
+# ── DATABASE BACKUPS (keep outside repo) ────────────────────
+*.sql.gz
+*.dump
+db_backup_*.sql
+*_backup_*.sql
+
+# ── JUPYTER / NOTEBOOKS ─────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── IDEs ────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.spyderproject.cfg
+.ropeproject/
+
+# ── OS FILES ────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ── BUILD / TEMP ─────────────────────────────────────────────
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# ── NODE (if ever added) ─────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── ML / MODEL (keep model files — they are small & reproducible)
+# If model files grow large (>50MB), uncomment these:
+# model/*.h5
+# model/*.pkl
+# model/*.ckpt
+# model/*.safetensors
+
+# ── MLFLOW (if ever added) ──────────────────────────────────
+mlruns/
+mlartifacts/

@@ -1,5 +1,15 @@
-flask
-nltk
-tensorflow
-numpy
-mysql-connector-python
+# VeggieVerse / Green Bites — Python Dependencies
+# Python 3.10+ required (tested on 3.13)
+#
+# Install with:
+#   pip install -r requirements.txt
+#
+# To regenerate with exact pinned versions from your environment:
+#   pip freeze > requirements.txt
+
+flask==3.1.3
+nltk==3.9.4
+tensorflow==2.21.0
+numpy==2.3.3
+mysql-connector-python==9.7.0
+python-dotenv==1.2.2

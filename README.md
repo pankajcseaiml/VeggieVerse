@@ -1,48 +1,345 @@
-# Vegetarian Restaurant Chatbot (Green Bites 🌿)
+# VeggieVerse — Green Bites 🌿 Restaurant Chatbot
 
-A complete, AI-driven chatbot for a vegetarian restaurant. Built with Flask, TensorFlow/Keras, NLTK, and MySQL.
+An AI-driven chatbot for a vegetarian restaurant, built with **Flask**, **TensorFlow/Keras**, **NLTK**, and **MySQL**.
+
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+![Flask](https://img.shields.io/badge/Flask-3.1-green)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-2.21-orange)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-blue)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+
+---
 
 ## Features
-- **NLP Intent Classification**: Trained using a custom neural network via Keras.
-- **MySQL Integration**: Live fetching of menu items and saving of orders/reservations.
-- **Session-aware Multi-turn Flows**: Handles step-by-step ordering and booking.
-- **Modern UI**: Responsive, animated, dark-green themed frontend.
 
-## Prerequisites
-- Python 3.10+
-- MySQL Server running locally on port 3306
+- **NLP Intent Classification** — Custom neural network trained with Keras
+- **Multi-turn Conversations** — Step-by-step order placement and table reservation flows
+- **Live MySQL Integration** — Menu, orders, reservations, and chat logs stored in MySQL
+- **Modern UI** — Responsive, animated, dark-green themed chat interface
 
-## Setup Instructions
+---
 
-1. **Set up the Virtual Environment**
-   ```bash
-   python -m venv venv
-   # On Windows use:
-   venv\Scripts\activate
-   # On macOS/Linux use:
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
+## Architecture
 
-2. **Database Setup**
-   Ensure your MySQL server is running (e.g., via XAMPP, WAMP, or standalone).
-   Execute the `database/schema.sql` script to create the `veg_restaurant_db` database and its tables:
-   ```bash
-   mysql -u root -p < database/schema.sql
-   ```
-   *Note: If your MySQL root user has a password, update the `db.py` file inside the `get_connection()` function to include your password.*
+```
+┌────────────────────┐     git clone     ┌──────────────────────┐
+│   PRIVATE GITHUB   │ ──────────────►  │   LOCAL MACHINE      │
+│                    │                   │                      │
+│  Source Code       │                   │  Flask Application   │
+│  DB Schema         │                   │  NLP Model           │
+│  Scripts           │                   │  venv                │
+│  Documentation     │                   └──────┬───────────────┘
+│  .env.example      │                          │
+└────────────────────┘                          │
+                                       ┌────────▼────────────┐
+                             ┌─────────┤   MySQL Database     │
+                             │         │   veg_restaurant_db  │
+              ┌──────────────▼──────┐  └─────────────────────┘
+              │  SECURE SECRET      │
+              │  STORAGE (.env)     │
+              │                     │
+              │  FLASK_SECRET_KEY   │
+              │  MYSQL_PASSWORD     │
+              │  (Password Manager) │
+              └─────────────────────┘
+```
 
-3. **Train the NLP Model**
-   Run the training script to generate the model files (`chatbot_model.h5`, `words.pkl`, `classes.pkl`).
-   ```bash
-   python train.py
-   ```
+**Principle:** GitHub holds all code. Secrets never touch GitHub. The `.env` file lives only on your machine and in your password manager.
 
-4. **Run the Application**
-   Start the Flask server.
-   ```bash
-   python app.py
-   ```
+---
 
-5. **Test the Chatbot**
-   Open your browser and navigate to `http://localhost:5000`.
+## Requirements
+
+| Dependency | Version |
+|---|---|
+| Python | 3.10+ (tested on 3.13) |
+| MySQL Server | 8.0+ |
+| pip | Latest |
+
+---
+
+## Installation on a New Machine
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/pankajcseaiml/VeggieVerse.git
+cd VeggieVerse/veg_restaurant_chatbot
+```
+
+### 2. Run the Setup Script
+
+**Windows:**
+```bat
+scripts\setup.bat
+```
+
+**Linux/macOS:**
+```bash
+bash scripts/setup.sh
+```
+
+This will:
+- Create a Python virtual environment
+- Install all dependencies from `requirements.txt`
+- Download required NLTK data
+- Create a `.env` file from `.env.example` (if it doesn't exist)
+
+### 3. Configure Environment Variables
+
+Open the `.env` file and fill in your values:
+
+```bash
+# .env  (NEVER commit this file)
+FLASK_SECRET_KEY=<generate-below>
+MYSQL_HOST=localhost
+MYSQL_USER=root
+MYSQL_PASSWORD=<your-mysql-password>
+MYSQL_DATABASE=veg_restaurant_db
+```
+
+Generate a strong Flask secret key:
+```bash
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+> **Security:** Store these values in a password manager (Bitwarden, KeePass, 1Password). The `.env` file is git-ignored and must never be committed.
+
+### 4. Set Up the Database
+
+Ensure your MySQL server is running, then:
+
+```bash
+# Windows
+mysql -u root -p < database\schema.sql
+
+# Linux/macOS
+mysql -u root -p < database/schema.sql
+```
+
+This creates the `veg_restaurant_db` database with all tables and seeds 10 menu items.
+
+### 5. Train the NLP Model
+
+```bash
+# Windows
+scripts\train_model.bat
+
+# Linux/macOS
+bash scripts/train_model.sh
+```
+
+This generates `model/chatbot_model.h5`, `model/words.pkl`, and `model/classes.pkl`.
+
+> **Note:** Model files are included in this repository (they are small — ~250 KB total). Re-training is only needed if you modify `data/intents.json`.
+
+### 6. Verify the Setup
+
+```bash
+# Windows
+scripts\verify.bat
+```
+
+All checks should show `[PASS]`.
+
+### 7. Start the Application
+
+```bash
+# Windows
+scripts\start.bat
+
+# Linux/macOS
+bash scripts/start.sh
+```
+
+Open your browser at: **http://localhost:5000**
+
+---
+
+## Environment Variables
+
+All sensitive configuration is loaded from environment variables. Set these in your `.env` file.
+
+| Variable | Required | Description |
+|---|---|---|
+| `FLASK_SECRET_KEY` | ✅ Yes | Flask session signing key — generate with `secrets.token_hex(32)` |
+| `MYSQL_HOST` | ✅ Yes | MySQL server host (e.g. `localhost`) |
+| `MYSQL_USER` | ✅ Yes | MySQL username (e.g. `root`) |
+| `MYSQL_PASSWORD` | ✅ Yes | MySQL password |
+| `MYSQL_DATABASE` | ✅ Yes | Database name (e.g. `veg_restaurant_db`) |
+| `MYSQL_PORT` | No | MySQL port (default: `3306`) |
+| `FLASK_DEBUG` | No | `1` for debug mode, `0` for production |
+| `FLASK_PORT` | No | Port to run Flask on (default: `5000`) |
+
+**If any required variable is missing, the application will exit immediately with a clear error message.**
+
+---
+
+## Database
+
+### Schema
+
+The database has 5 tables:
+
+| Table | Purpose |
+|---|---|
+| `menu_items` | Restaurant menu (10 items seeded) |
+| `orders` | Customer takeaway orders |
+| `order_items` | Line items for each order |
+| `reservations` | Table reservations |
+| `chat_logs` | Full chat history |
+
+Schema is in [`database/schema.sql`](database/schema.sql).
+
+### Backup
+
+```bash
+# Windows
+scripts\backup_db.bat
+
+# Linux/macOS
+bash scripts/backup_db.sh
+```
+
+Backups are saved to `backups/veg_restaurant_db_YYYYMMDD_HHMMSS.sql`.
+
+> ⚠️ Store backup files **outside this repository** in secure storage (cloud, encrypted drive).
+
+### Restore
+
+```bash
+# Windows — fresh setup from schema
+scripts\restore_db.bat
+
+# Windows — restore from a backup
+scripts\restore_db.bat backups\veg_restaurant_db_20260906_161500.sql
+
+# Linux/macOS
+bash scripts/restore_db.sh backups/veg_restaurant_db_20260906_161500.sql
+```
+
+---
+
+## ML Model
+
+The chatbot uses a 3-layer Keras neural network for intent classification.
+
+| File | Purpose |
+|---|---|
+| `data/intents.json` | Training data — intents, patterns, and responses |
+| `train.py` | Model training script |
+| `model/chatbot_model.h5` | Trained model weights |
+| `model/words.pkl` | Vocabulary |
+| `model/classes.pkl` | Intent classes |
+
+Model files are committed because they are small (~250 KB) and reproducible. If they are lost, re-run `scripts/train_model.bat`.
+
+---
+
+## Project Structure
+
+```
+veg_restaurant_chatbot/
+├── app.py                  # Flask application (main entrypoint)
+├── chatbot.py              # NLP inference logic
+├── db.py                   # MySQL database layer
+├── train.py                # Model training script
+├── update_prices.py        # One-off price migration utility
+├── requirements.txt        # Python dependencies
+├── .env.example            # Environment variable template (safe to commit)
+├── .gitignore              # Git exclusions
+├── data/
+│   └── intents.json        # NLP training data
+├── database/
+│   └── schema.sql          # Database schema + seed data
+├── model/
+│   ├── chatbot_model.h5    # Trained model
+│   ├── words.pkl           # Vocabulary
+│   └── classes.pkl         # Intent classes
+├── static/
+│   ├── css/style.css
+│   └── js/chat.js
+├── templates/
+│   └── index.html
+├── scripts/
+│   ├── setup.bat / setup.sh
+│   ├── start.bat / start.sh
+│   ├── backup_db.bat / backup_db.sh
+│   ├── restore_db.bat / restore_db.sh
+│   ├── train_model.bat / train_model.sh
+│   └── verify.bat
+└── docs/
+    ├── DISASTER_RECOVERY.md
+    ├── SECURITY.md
+    └── ARCHITECTURE.md
+```
+
+---
+
+## Testing
+
+```bash
+# Activate venv first
+venv\Scripts\activate    # Windows
+source venv/bin/activate # Linux/macOS
+
+# Verify environment
+scripts\verify.bat
+
+# Manual test
+curl -X POST http://localhost:5000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "show me the menu"}'
+```
+
+---
+
+## Troubleshooting
+
+| Problem | Solution |
+|---|---|
+| `[ERROR] FLASK_SECRET_KEY not set` | Copy `.env.example` → `.env` and fill in values |
+| `[ERROR] Missing required environment variables` | Check all variables in `.env` are filled |
+| `[ERROR] MySQL connection failed` | Check MySQL is running and `MYSQL_PASSWORD` is correct |
+| `The chatbot model hasn't been trained yet` | Run `scripts\train_model.bat` |
+| `ModuleNotFoundError` | Run `scripts\setup.bat` to install dependencies |
+| App won't start | Run `scripts\verify.bat` to diagnose |
+
+---
+
+## Disaster Recovery
+
+If your machine is lost or destroyed, see the complete recovery guide:
+
+📄 **[docs/DISASTER_RECOVERY.md](docs/DISASTER_RECOVERY.md)**
+
+Summary:
+1. Get a new machine with Python 3.10+ and MySQL 8.0+
+2. `git clone https://github.com/pankajcseaiml/VeggieVerse.git`
+3. Retrieve secrets from your password manager
+4. `scripts\setup.bat`
+5. Restore database from backup
+6. `scripts\start.bat`
+
+---
+
+## Security
+
+See [`docs/SECURITY.md`](docs/SECURITY.md) for the full security architecture.
+
+Key principles:
+- All secrets in `.env` (git-ignored), never in source code
+- `.env.example` contains only placeholder names — safe to commit
+- Startup validation: app refuses to start with missing secrets
+- Git history has been audited and cleaned
+
+---
+
+## Backup Strategy
+
+| Asset | Where Stored | How to Restore |
+|---|---|---|
+| Source code | GitHub (private) | `git clone` |
+| Secrets | Password manager | Copy to `.env` |
+| Database | `backups/` (outside repo) | `scripts\restore_db.bat` |
+| Model files | GitHub (small, committed) | Already in repo, or re-run `train.py` |
